@@ -1,0 +1,52 @@
+version: "3.9"
+
+networks:
+  rede-dio:
+    driver: bridge
+    external: true
+    ipam:
+      config:
+        - subnet: 10.10.0.0/24
+          gateway: 10.10.0.1
+
+services:
+  web:
+    image: webdevops/php-apache:alpine-php7
+    ports:
+      - "80:80"
+    volumes:
+      - /data/php/:/app
+
+    networks:
+      rede-dio:
+        ipv4_address: 10.10.0.2
+
+    depends_on:
+      - db
+
+  db:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: "123456"
+      MYSQL_DATABASE: "db_dio"
+    ports:
+      - "3306:3306"
+    volumes:
+      - /data/mysql-C:/var/lib/mysql
+
+    networks:
+      rede-dio:
+        ipv4_address: 10.10.0.3
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    environment:
+      MYSQL_ROOT_PASSWORD: "123456"
+    ports:
+      - "81:80"
+    volumes:
+      - /data/php/admin/uploads.ini:/usr/local/etc/php/conf.d/php-phpmyadmin.ini
+
+    networks:
+      rede-dio:
+        ipv4_address: 10.10.0.4
